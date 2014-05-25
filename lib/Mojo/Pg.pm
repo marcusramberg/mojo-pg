@@ -2,6 +2,8 @@ package Mojo::Pg;
 use Mojo::Base -base;
 use strict;
 
+our $VERSION = '0.01';
+
 use DBI;
 use DBD::Pg ':async';
 use Mojo::IOLoop;

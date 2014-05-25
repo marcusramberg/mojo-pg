@@ -9,23 +9,23 @@ WriteMakefile(
   NAME         => 'Mojo::Pg',
   VERSION_FROM => 'lib/Mojo/Pg.pm',
   ABSTRACT     => 'Real-time web framework',
-  AUTHOR       => 'Sebastian Riedel <sri@cpan.org>',
+  AUTHOR       => 'Joel Berger <joel.a.berger@gmail.com>',
   LICENSE      => 'artistic_2',
   META_MERGE   => {
-    requires  => {perl => '5.010001', Mojolicious => '1.0', 'DBD::Pg' => '0'},
+    requires => {
+      perl        => '5.010001',
+      Mojolicious => '1.0',
+      ' DBD::Pg
+    ' => ' 0 '
+    },
     resources => {
-      homepage => ' http : //mojolicio . us ',
-      license  => ' http
-      : // www
-        . opensource
-        . org / licenses / artistic-license
-        - 2.0 ',
-      MailingList => ' http : //groups . google . com / group / mojolicious ',
-      repository  => ' http : //github . com / kraih / mojo ',
-      bugtracker  => ' http : //github . com / kraih / mojo / issues '
+      license => ' http
+  : // www
+    . opensource
+    . org / licenses / artistic-license
+    - 2.0 ',
     },
     no_index => {directory => [' t ']}
   },
-  EXE_FILES => [' script / hypnotoad ', ' script / mojo ', ' script / morbo '],
   test => {TESTS => ' t /*.t t/ * /*.t'}
 );
