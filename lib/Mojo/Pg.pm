@@ -41,7 +41,7 @@ sub execute {
     $socket => sub {
       my ($reactor, $writable) = @_;
       return unless $dbh->pg_ready;
-      Mojo::IOLoop->singleton->reactor->remove($socket);
+      $reactor->remove($socket);
       $dbh->pg_result;
       $self->$cb;
     }
