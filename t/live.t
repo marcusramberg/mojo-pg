@@ -1,13 +1,8 @@
 use Test::More;
-
-use_ok 'Mojo::Pg';
-my $pg = Mojo::Pg->new;
-can_ok($pg, 'dbh');
-
-use DDP;
+plan skip_all => "Must set PG_DSN to enable live testing" unless $ENV{PG_DSN};
 my $pg = Mojo::Pg->new(dsn => 'dbname=joel;host=localhost;port=5432',);
 
-$pg->prepare('SELECT * FROM foo');
+$pg->prepare('1');
 $pg->execute(
   sub {
     my $res = shift->sth->fetchall_arrayref;
@@ -19,6 +14,5 @@ $pg->execute(
 Mojo::IOLoop->recurring(0.5 => sub { say $pg->status });
 
 Mojo::IOLoop->start;
-
 
 done_testing;
