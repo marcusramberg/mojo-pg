@@ -52,3 +52,20 @@ sub status { shift->dbh->{pg_async_status} }
 
 
 1;
+
+=head1 NAME
+
+Mojo::Pg - ASync PostgreSQL using the Mojo IOLoop
+
+=head1 SYNOPSIS
+
+    my $pg=Mojo::Pg->new(dsn=>'dbname:joel');
+    $pg->prepare('SELECT * FROM foo');
+    $pg->execute(sub {
+      my ($res,$err)=@_;
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=cut
