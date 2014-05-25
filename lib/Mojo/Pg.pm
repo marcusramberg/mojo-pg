@@ -52,8 +52,7 @@ sub _watch {
       my ($reactor, $writable) = @_;
       return unless $dbh->pg_ready;
       $reactor->remove($socket);
-      $dbh->pg_result;
-      $self->$cb;
+      $self->$cb($dbh->pg_result);
     }
   );
 }

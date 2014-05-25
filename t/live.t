@@ -6,23 +6,44 @@ use Mojo::Pg;
 plan skip_all => "Must set PG_DSN to enable live testing"
   unless $ENV{MOJO_PG_DSN};
 
-{    #  Test basic roundtrip
+subtest '"do" roundtrip' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
 
   $pg->prepare('SELECT 2');
 
-  my $res;
+  my $lines;
+  $pg->do('SELECT 5',
+    sub {
+      shift;
+      $lines = shift;
+      Mojo::IOLoop->stop;
+    }
+  );
+  Mojo::IOLoop->start;
+  ok $lines, 'we did something';
+};
+
+subtest '"prepare" => roundtrip' => sub {
+  my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
+
+  $pg->prepare('SELECT 2');
+
+  my ($res, $lines);
   $pg->execute(
     sub {
-      $res = shift->sth->fetchall_arrayref;
+      my $self = shift;
+      $lines = shift;
+      $res = $self->sth->fetchall_arrayref;
       Mojo::IOLoop->stop;
     }
   );
   Mojo::IOLoop->start;
 
+  ok $lines, 'we did something';
   is_deeply $res, [[2]];
 };
-{    #  Test syntax error
+
+subtest 'Syntax error' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
 
   $pg->prepare('SELCT 1', {RaiseError => 1});
