@@ -48,6 +48,8 @@ sub execute {
   );
 }
 
+sub cancel { shift->dbh->pg_cancel }
+
 sub status { shift->dbh->{pg_async_status} }
 
 1;
@@ -92,6 +94,10 @@ Options to DBI
 The DBI database handle
 
 =head1 METHODS
+
+=head2 cancel
+
+Cancel the current async query
 
 =head2 status
 
