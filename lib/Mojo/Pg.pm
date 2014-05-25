@@ -97,18 +97,26 @@ The DBI database handle
 
 =head2 cancel
 
+  $pg->cancel;
+
 Cancel the current async query
 
 =head2 status
 
-Return the status of the current async query
+  my $status = $pg->status;
 
-=head2 prepare $query
+Return the status of the current async query. See L<DBD::Pg/pg_async_status>.
+
+=head2 prepare
+
+  $pg->prepare($query);
 
 Prepare an SQL statement
 
-=head2 execute $cb
+=head2 execute
 
-Execute the above prepared SQL statment, Calls $cb with this object. 
+  $pg->execute(@params, sub { my $pg = shift; ... });
+
+Execute the above prepared SQL statment, Calls the callback with this object. 
 
 =cut
