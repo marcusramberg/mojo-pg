@@ -1,6 +1,5 @@
 package Mojo::Pg;
 use Mojo::Base -base;
-use strict;
 
 our $VERSION = '0.01';
 
@@ -11,6 +10,7 @@ use IO::Handle;
 
 has [qw/dsn username password/] => '';
 has options => sub { {} };
+has 'sth';
 
 has dbh => sub {
   my $self = shift;
@@ -23,8 +23,6 @@ has dbh => sub {
 has socket => sub {
   IO::Handle->new_from_fd(shift->dbh->{pg_socket}, 'r');
 };
-
-has 'sth';
 
 sub prepare {
   my ($self, $query) = @_;
@@ -51,7 +49,6 @@ sub execute {
 }
 
 sub status { shift->dbh->{pg_async_status} }
-
 
 1;
 
