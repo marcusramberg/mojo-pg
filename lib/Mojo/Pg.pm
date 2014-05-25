@@ -59,13 +59,51 @@ Mojo::Pg - ASync PostgreSQL using the Mojo IOLoop
 
 =head1 SYNOPSIS
 
-    my $pg=Mojo::Pg->new(dsn=>'dbname:joel');
+    my $pg=Mojo::Pg->new(dsn=>'dbname=joel');
     $pg->prepare('SELECT * FROM foo');
     $pg->execute(sub {
       my ($res,$err)=@_;
+    });
 
 =head1 DESCRIPTION
 
+Wrap DBD::Pg to run async queries inside the Mojo::IOLoop.
+
+=head1 ATTRIBUTES
+
+=head2 dsn
+
+The dsn, excluding the 'dbd:Pg:' part 
+   dsn => 'dbname=wat'
+
+=head2 username
+
+Your database username
+
+=head2 password
+
+Your database password
+
+=head2 options
+
+Options to DBI
+
+=head2 dbh
+
+The DBI database handle
+
 =head1 METHODS
+
+=head2 status
+
+Return the status of the current async query
+
+=head2 prepare $query
+
+Prepare an SQL statement
+
+=head2 execute $cb
+
+Execute the above prepared SQL statment, Calls $cb with this object. 
 
 =cut
