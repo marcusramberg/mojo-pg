@@ -24,9 +24,15 @@ has socket => sub {
   IO::Handle->new_from_fd(shift->dbh->{pg_socket}, 'r');
 };
 
+sub do {
+  my $self = shift;
+}
+
 sub prepare {
-  my ($self, $query) = @_;
-  $self->sth($self->dbh->prepare($query, {pg_async => PG_ASYNC}))->sth;
+  my ($self, $query, $attr) = @_;
+  $attr ||= {};
+  $attr->{pg_async} = PG_ASYNC;
+  $self->sth($self->dbh->prepare($query, $attr))->sth;
 }
 
 sub execute {
