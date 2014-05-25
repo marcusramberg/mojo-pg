@@ -5,63 +5,20 @@ our $VERSION = '0.01';
 
 use DBI;
 use DBD::Pg ':async';
-use Mojo::IOLoop;
-use IO::Handle;
+use Mojo::Pg::Pool;
 
 has [qw/dsn username password/] => '';
 has options => sub { {} };
-has 'sth';
 
-has dbh => sub {
+has 'pool' => sub { Mojo::Pg::Pool->new }; 
+
+sub build_handle {
   my $self = shift;
   return DBI->connect(
     'dbi:Pg:' . $self->dsn, $self->username,
     $self->password,        $self->options
   );
 };
-
-sub do {
-  my ($self, $statement) = (shift, shift);
-  my $cb   = pop;
-  my $attr = shift || {};
-  $attr->{pg_async} = PG_ASYNC;
-  $self->dbh->do($statement, $attr, @_);
-  $self->_watch($cb);
-}
-
-sub prepare {
-  my ($self, $query, $attr) = @_;
-  $attr ||= {};
-  $attr->{pg_async} = PG_ASYNC;
-  $self->sth($self->dbh->prepare($query, $attr))->sth;
-}
-
-sub execute {
-  my $self = shift;
-  my $cb   = pop;
-  $self->sth->execute(@_);
-  $self->_watch($cb);
-}
-
-sub _watch {
-  my ($self, $cb) = @_;
-  my $dbh    = $self->dbh;
-  my $socket = IO::Handle->new_from_fd($dbh->{pg_socket}, 'r');
-  Mojo::IOLoop->singleton->reactor->io(
-    $socket => sub {
-      my ($reactor, $writable) = @_;
-      return unless $dbh->pg_ready;
-      $reactor->remove($socket);
-      $self->$cb($dbh->pg_result);
-    }
-  );
-}
-
-sub cancel { shift->dbh->pg_cancel }
-
-sub status { shift->dbh->{pg_async_status} }
-
-1;
 
 =head1 NAME
 
