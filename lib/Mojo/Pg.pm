@@ -116,16 +116,25 @@ Cancel the current async query
 
 Return the status of the current async query. See L<DBD::Pg/pg_async_status>.
 
+=head2 do
+
+  $pg->do($statement, \%attr, @params, sub { my ($pg, $res) = @_; ... });
+
+Execute a statement directly. Takes optional hash of attributes, and binding paramenters.
+Calls the callback with this object and the same result as C<do> would have returned
+(number of lines).
+
 =head2 prepare
 
-  $pg->prepare($query);
+  $pg->prepare($query, \%attr);
 
 Prepare an SQL statement
 
 =head2 execute
 
-  $pg->execute(@params, sub { my $pg = shift; ... });
+  $pg->execute(@params, sub { my ($pg, $res) = @_; ... });
 
-Execute the above prepared SQL statment, Calls the callback with this object. 
+Execute the above prepared SQL statment, Calls the callback with this object
+and the same result as C<execute> would have returned (number of lines).
 
 =cut
