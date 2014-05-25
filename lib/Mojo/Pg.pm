@@ -20,12 +20,13 @@ has dbh => sub {
   );
 };
 
-has socket => sub {
-  IO::Handle->new_from_fd(shift->dbh->{pg_socket}, 'r');
-};
-
 sub do {
-  my $self = shift;
+  my ($self, $statement) = (shift, shift);
+  my $cb   = pop;
+  my $attr = shift || {};
+  $attr->{pg_async} = PG_ASYNC;
+  $self->dbh->do($statement, $attr, @_);
+  $self->_watch($cb);
 }
 
 sub prepare {
@@ -39,10 +40,13 @@ sub execute {
   my $self = shift;
   my $cb   = pop;
   $self->sth->execute(@_);
+  $self->_watch($cb);
+}
 
+sub _watch {
+  my ($self, $cb) = @_;
   my $dbh    = $self->dbh;
-  my $socket = $self->socket;
-
+  my $socket = IO::Handle->new_from_fd($dbh->{pg_socket}, 'r');
   Mojo::IOLoop->singleton->reactor->io(
     $socket => sub {
       my ($reactor, $writable) = @_;

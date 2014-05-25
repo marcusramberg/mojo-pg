@@ -25,16 +25,17 @@ plan skip_all => "Must set PG_DSN to enable live testing"
 {    #  Test syntax error
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
 
-  $pg->prepare('SELCT 1', options => {RaiseError => 1});
+  $pg->prepare('SELCT 1', {RaiseError => 1});
 
-  my $res;
+  my $err;
   $pg->execute(
     sub {
-      ok(shift->dbh->err, 'We have an error');
+      $err = shift->dbh->err;
       Mojo::IOLoop->stop;
     }
   );
   Mojo::IOLoop->start;
+  ok $err, 'we have an error';
 
 };
 
