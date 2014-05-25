@@ -1,18 +1,23 @@
-use Test::More;
-plan skip_all => "Must set PG_DSN to enable live testing" unless $ENV{PG_DSN};
-my $pg = Mojo::Pg->new(dsn => 'dbname=joel;host=localhost;port=5432',);
+use Mojo::Base -strict;
 
-$pg->prepare('1');
+use Test::More;
+use Mojo::Pg;
+
+plan skip_all => "Must set PG_DSN to enable live testing" unless $ENV{MOJO_PG_DSN};
+my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
+
+$pg->prepare('SELECT 2');
+
+my $res;
 $pg->execute(
   sub {
-    my $res = shift->sth->fetchall_arrayref;
-    p $res;
+    $res = shift->sth->fetchall_arrayref;
     Mojo::IOLoop->stop;
   }
 );
-
-Mojo::IOLoop->recurring(0.5 => sub { say $pg->status });
-
 Mojo::IOLoop->start;
 
+is_deeply $res, [[2]];
+
 done_testing;
+
