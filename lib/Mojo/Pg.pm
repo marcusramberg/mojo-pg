@@ -120,9 +120,9 @@ Return the status of the current async query. See L<DBD::Pg/pg_async_status>.
 
   $pg->do($statement, \%attr, @params, sub { my ($pg, $res) = @_; ... });
 
-Execute a statement directly. Takes optional hash of attributes, and binding paramenters.
-Calls the callback with this object and the same result as C<do> would have returned
-(number of lines).
+Execute a statement directly. Takes optional hash of attributes, and binding 
+paramenters.  Calls the callback with this object and the same result as C<do>
+would have returned (number of lines).
 
 =head2 prepare
 
@@ -149,8 +149,5 @@ Copyright (C) 2014,  Joel A. Berger
 
 This program is free software, you can redistribute it and/or modify it under
 the terms of the Artistic License version 2.0.
-
-=cut
-
 
 =cut
