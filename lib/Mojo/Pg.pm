@@ -22,7 +22,7 @@ has dbh => sub {
 
 sub do {
   my ($self, $statement) = (shift, shift);
-  my $cb   = pop;
+  my $cb = pop;
   my $attr = shift || {};
   $attr->{pg_async} = PG_ASYNC;
   $self->dbh->do($statement, $attr, @_);
@@ -45,7 +45,7 @@ sub execute {
 
 sub _watch {
   my ($self, $cb) = @_;
-  my $dbh    = $self->dbh;
+  my $dbh = $self->dbh;
   my $socket = IO::Handle->new_from_fd($dbh->{pg_socket}, 'r');
   Mojo::IOLoop->singleton->reactor->io(
     $socket => sub {
@@ -136,5 +136,21 @@ Prepare an SQL statement
 
 Execute the above prepared SQL statment, Calls the callback with this object
 and the same result as C<execute> would have returned (number of lines).
+
+=head1 AUTHORS
+
+Joel A. Berger C<jberger@cpan.org>
+Marcus Ramberg C<mramberg@cpan.org>
+
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2014,  Joel A. Berger
+
+This program is free software, you can redistribute it and/or modify it under
+the terms of the Artistic License version 2.0.
+
+=cut
+
 
 =cut
