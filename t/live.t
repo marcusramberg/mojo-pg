@@ -8,6 +8,7 @@ plan skip_all => "Must set PG_DSN to enable live testing"
 
 subtest '"do" roundtrip' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
+  $pg->add_handle;
 
   my $lines;
   Mojo::IOLoop->delay(
@@ -30,6 +31,7 @@ subtest '"do" roundtrip' => sub {
 
 subtest '"prepare" => roundtrip' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
+  $pg->add_handle;
 
   my ($res, $lines);
   Mojo::IOLoop->delay(
@@ -56,6 +58,7 @@ subtest '"prepare" => roundtrip' => sub {
 
 subtest 'Syntax error' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
+  $pg->add_handle;
 
   my $err;
   Mojo::IOLoop->delay(

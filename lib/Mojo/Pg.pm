@@ -25,8 +25,8 @@ sub add_handle {
 sub get_handle {
   my ($self, $cb) = @_;
   my $handles = $self->handles;
-  if (my $h = shift @$handles) {
-    return $self->_start($h, $cb);
+  if (my $dbh = shift @$handles) {
+    return $self->_start($dbh, $cb);
   };
   push @{ $self->jobs }, $cb;
 }
@@ -43,7 +43,7 @@ sub _start {
   my ($self, $dbh, $cb) = @_;
   my $h = Mojo::Pg::Handle->new(dbh => $dbh, pool => $self);
   weaken $h->{pool};
-  Mojo::IOLoop->next_tick(sub { $cb->($h) });
+  Mojo::IOLoop->next_tick(sub { $self->$cb($h) });
 }
 
 1;
