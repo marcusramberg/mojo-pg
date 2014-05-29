@@ -38,7 +38,7 @@ subtest '"prepare" roundtrip' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
   $pg->add_handle;
 
-  my ($res, $lines);
+  my ($res, $lines, $err);
   Mojo::IOLoop->delay(
     sub {
       $pg->get_handle(shift->begin);
@@ -52,6 +52,7 @@ subtest '"prepare" roundtrip' => sub {
       my ($delay, $handle) = (shift, shift);
       $lines = shift;
       $res = $handle->sth->fetchall_arrayref;
+      $err = $handle->dbh->err;
       Mojo::IOLoop->stop;
     }
   );
@@ -59,6 +60,7 @@ subtest '"prepare" roundtrip' => sub {
 
   ok $lines, 'we did something';
   is_deeply $res, [[2]];
+  ok !$err, 'no error';
 };
 
 subtest 'Syntax error' => sub {
