@@ -9,14 +9,16 @@ plan skip_all => "Must set PG_DSN to enable live testing"
 subtest '"do" roundtrip' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
   $pg->add_handle;
+  is @{ $pg->handles }, 1, 'have one available handle';
 
-  my $lines;
+  my ($lines, $available);
   Mojo::IOLoop->delay(
     sub {
       $pg->get_handle(shift->begin);
     },
     sub {
       my ($delay, $handle) = @_;
+      $available = @{ $pg->handles };
       $handle->do('SELECT 5', $delay->begin);
     },
     sub {
@@ -27,9 +29,12 @@ subtest '"do" roundtrip' => sub {
   );
   Mojo::IOLoop->start;
   ok $lines, 'we did something';
+  is $available, 0, 'handle unavailable when in use';
+
+  is @{ $pg->handles }, 1, 'have one available handle when done';
 };
 
-subtest '"prepare" => roundtrip' => sub {
+subtest '"prepare" roundtrip' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
   $pg->add_handle;
 
