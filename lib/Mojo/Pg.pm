@@ -4,13 +4,32 @@ use Mojo::Base -base;
 our $VERSION = '0.01';
 
 use DBI;
-use DBD::Pg ':async';
-use Mojo::Pg::Pool;
+use Mojo::Pg::Handle;
+use Mojo::IOLoop;
+use Scalar::Util qw/weaken/;
 
 has [qw/dsn username password/] => '';
 has options => sub { {} };
+has [qw/handles jobs/] => sub { [] };
 
-has 'pool' => sub { Mojo::Pg::Pool->new }; 
+sub add_handle {
+  my ($self, $dbh) = @_;
+  $dbh ||= $self->build_handle;
+  my $jobs = $self->jobs;
+  if (my $job = shift @$jobs) {
+    return $self->_start($dbh, $job);
+  }
+  push @{ $self->handles }, $dbh;
+}
+
+sub get_handle {
+  my ($self, $cb) = @_;
+  my $handles = $self->handles;
+  if (my $h = shift @$handles) {
+    return $self->_start($h, $cb);
+  };
+  push @{ $self->jobs }, $cb;
+}
 
 sub build_handle {
   my $self = shift;
@@ -19,6 +38,15 @@ sub build_handle {
     $self->password,        $self->options
   );
 };
+
+sub _start {
+  my ($self, $dbh, $cb) = @_;
+  my $h = Mojo::Pg::Handle->new(dbh => $dbh, pool => $self);
+  weaken $h->{pool};
+  Mojo::IOLoop->next_tick(sub { $cb->($h) });
+}
+
+1;
 
 =head1 NAME
 

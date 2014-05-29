@@ -9,12 +9,17 @@ plan skip_all => "Must set PG_DSN to enable live testing"
 subtest '"do" roundtrip' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
 
-  $pg->prepare('SELECT 2');
-
   my $lines;
-  $pg->do('SELECT 5',
+  Mojo::IOLoop->delay(
     sub {
-      shift;
+      $pg->get_handle(shift->begin);
+    },
+    sub {
+      my ($delay, $handle) = @_;
+      $handle->do('SELECT 5', $delay->begin);
+    },
+    sub {
+      my $delay = shift;
       $lines = shift;
       Mojo::IOLoop->stop;
     }
@@ -26,14 +31,20 @@ subtest '"do" roundtrip' => sub {
 subtest '"prepare" => roundtrip' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
 
-  $pg->prepare('SELECT 2');
-
   my ($res, $lines);
-  $pg->execute(
+  Mojo::IOLoop->delay(
     sub {
-      my $self = shift;
+      $pg->get_handle(shift->begin);
+    },
+    sub {
+      my ($delay, $handle) = @_;
+      $handle->prepare('SELECT 2');
+      $handle->execute($delay->begin(0));
+    },
+    sub {
+      my ($delay, $handle) = (shift, shift);
       $lines = shift;
-      $res = $self->sth->fetchall_arrayref;
+      $res = $handle->sth->fetchall_arrayref;
       Mojo::IOLoop->stop;
     }
   );
@@ -46,18 +57,24 @@ subtest '"prepare" => roundtrip' => sub {
 subtest 'Syntax error' => sub {
   my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
 
-  $pg->prepare('SELCT 1', {RaiseError => 1});
-
   my $err;
-  $pg->execute(
+  Mojo::IOLoop->delay(
     sub {
+      $pg->get_handle(shift->begin);
+    },
+    sub {
+      my ($delay, $handle) = @_;
+      $handle->prepare('SELCT 1', {RaiseError => 1});
+      $handle->execute($delay->begin(0));
+    },
+    sub {
+      my $delay = shift;
       $err = shift->dbh->err;
       Mojo::IOLoop->stop;
     }
   );
   Mojo::IOLoop->start;
   ok $err, 'we have an error';
-
 };
 
 done_testing;
