@@ -28,9 +28,9 @@ subtest '"do" roundtrip' => sub {
     }
   );
   Mojo::IOLoop->start;
+
   ok $lines, 'we did something';
   is $available, 0, 'handle unavailable when in use';
-
   is @{ $pg->handles }, 1, 'have one available handle when done';
 };
 
@@ -82,7 +82,9 @@ subtest 'Syntax error' => sub {
     }
   );
   Mojo::IOLoop->start;
+
   ok $err, 'we have an error';
 };
 
 done_testing;
+
