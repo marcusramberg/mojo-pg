@@ -64,7 +64,10 @@ subtest '"prepare" roundtrip' => sub {
 };
 
 subtest 'Syntax error' => sub {
-  my $pg = Mojo::Pg->new(dsn => $ENV{MOJO_PG_DSN});
+  my $pg = Mojo::Pg->new(
+    dsn     => $ENV{MOJO_PG_DSN}, 
+    options => {RaiseError => 0, PrintError=>0},
+  );
   $pg->add_handle;
 
   my $err;
@@ -74,7 +77,7 @@ subtest 'Syntax error' => sub {
     },
     sub {
       my ($delay, $handle) = @_;
-      $handle->prepare('SELCT 1', {RaiseError => 1});
+      $handle->prepare('SELCT 1');
       $handle->execute($delay->begin(0));
     },
     sub {
